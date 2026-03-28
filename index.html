@@ -318,6 +318,7 @@
     <script>
         let map, userMarker, currentUserType = '', currentUserData = {}, routeLine;
         let listenerInitialized = false;
+        let notified = false;
         const centerLat = 15.4833, centerLng = 120.9500, radius = 2000; // 2km radius LOCKED
         let rideStages = ['Driver Found', 'En Route', 'Arrived'];
 
@@ -420,13 +421,34 @@
         currentUserData.type === 'user' ? 'Passenger' : 'Driver';
 
     setupNavigation();
+
+// 🔥 ILAGAY MO ITO DITO
+    if (currentUserData.type === 'user') {
+        db.collection("rides")
+        .where("passenger", "==", currentUserData.name)
+        .onSnapshot((snapshot) => {
+            snapshot.forEach(doc => {
+                const ride = doc.data();
+
+                if (ride.status === "accepted") {
+                    notified = true;
+                    alert("🚗 Driver is on the way!");
+                    document.getElementById('rideTracker').style.display = 'block';
+                }
+            });
+        });
+    }
 }
+
 
         function setupNavigation() {
     const nav = document.getElementById('userNav');
     nav.innerHTML = '';
 
     if (currentUserData.type === 'user') {
+
+    // ✅ IBALIK ANG BUTTON
+    document.getElementById("bookRideBtn").style.display = "block";
 
         const userNavItems = [
             {text: '🏠 Home', id: 'home'},
