@@ -321,7 +321,6 @@
         const centerLat = 15.4833, centerLng = 120.9500, radius = 2000; // 2km radius LOCKED
         let rideStages = ['Driver Found', 'En Route', 'Arrived'];
 
-
         function initMap() {
             map = L.map('map').setView([centerLat, centerLng], 15);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -424,56 +423,50 @@
 }
 
         function setupNavigation() {
-            const nav = document.getElementById('userNav');
-            nav.innerHTML = '';
-            
-            
-            if (currentUserData.type === 'user') {
+    const nav = document.getElementById('userNav');
+    nav.innerHTML = '';
 
-    const userNavItems = [
-        {text: '🏠 Home', id: 'home'},
-        {text: '👤 Profile', id: 'profile'},
-        {text: '⭐ Favorites', id: 'favorites'},
-        {text: '📋 History', id: 'history'},
-        {text: '⭐ Rating', id: 'rating'}
-    ];
+    if (currentUserData.type === 'user') {
 
-    userNavItems.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'nav-btn';
-        btn.textContent = item.text;
-        btn.onclick = (e) => showSection(item.id, e.target);
-        nav.appendChild(btn);
-    });
+        const userNavItems = [
+            {text: '🏠 Home', id: 'home'},
+            {text: '👤 Profile', id: 'profile'},
+            {text: '⭐ Favorites', id: 'favorites'},
+            {text: '📋 History', id: 'history'},
+            {text: '⭐ Rating', id: 'rating'}
+        ];
 
-} else if (currentUserData.type === 'driver') {
+        userNavItems.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn';
+            btn.textContent = item.text;
+            btn.onclick = (e) => showSection(item.id, e.target);
+            nav.appendChild(btn);
+        });
 
-    // ❌ alisin booking button
-    document.getElementById("bookRideBtn").style.display = "none";
+    } else if (currentUserData.type === 'driver') {
 
-    // ✅ ipakita driver panel
-    document.getElementById('driverPanel').style.display = 'block';
+        document.getElementById("bookRideBtn").style.display = "none";
+        document.getElementById('driverPanel').style.display = 'block';
 
-    // ✅ driver nav lang
-    const driverNavItems = [
-        {text: '🏠 Home', id: 'home'},
-        {text: '👤 Profile', id: 'profile'},
-        {text: '📍 Address', id: 'address'},
-        {text: '⭐ Rating', id: 'rating'},
-        {text: '📋 History', id: 'history'},
-        {text: '🚗 Trips', id: 'trips'}
-    ];
+        const driverNavItems = [
+            {text: '🏠 Home', id: 'home'},
+            {text: '👤 Profile', id: 'profile'},
+            {text: '📍 Address', id: 'address'},
+            {text: '⭐ Rating', id: 'rating'},
+            {text: '📋 History', id: 'history'},
+            {text: '🚗 Trips', id: 'trips'}
+        ];
 
-    driverNavItems.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'nav-btn';
-        btn.textContent = item.text;
-        btn.onclick = () => showSection(item.id);
-        nav.appendChild(btn);
-    });
+        driverNavItems.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'nav-btn';
+            btn.textContent = item.text;
+            btn.onclick = () => showSection(item.id);
+            nav.appendChild(btn);
+        });
 
-    // 🔥 listener (driver only)
-    if (!listenerInitialized) {
+        if (!listenerInitialized) {
             listenerInitialized = true;
 
             db.collection("rides").onSnapshot((snapshot) => {
@@ -497,11 +490,9 @@
                     list.appendChild(div);
                 });
             });
-        } // ✅ closes if
-
-    } // ✅ closes else-if
-
-} // ✅ ❗ THIS ONE YOU ARE MISSING (closes setupNavigation)
+        }
+    }
+}	
 
 
 function acceptRide(id) {
