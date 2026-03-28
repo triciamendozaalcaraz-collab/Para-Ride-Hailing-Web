@@ -321,9 +321,6 @@
         const centerLat = 15.4833, centerLng = 120.9500, radius = 2000; // 2km radius LOCKED
         let rideStages = ['Driver Found', 'En Route', 'Arrived'];
 
-        window.onload = function() { 
-            initMap(); 
-        };
 
         function initMap() {
             map = L.map('map').setView([centerLat, centerLng], 15);
@@ -405,20 +402,26 @@
         }
 
         function showDashboard() {
-            document.getElementById('loginForms').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'block';
-            
-            document.getElementById('userType').textContent =
-    currentUserData.type === 'user'
-    ? `👤 Welcome, ${currentUserData.name}!`
-    : `🚗 ${currentUserData.name} Dashboard`;
-            
-            document.getElementById('profileName').textContent = currentUserData.name;
-            document.getElementById('profileId').textContent = currentUserData.id;
-            document.getElementById('profileType').textContent = currentUserData.type === 'user' ? 'Passenger' : 'Driver';
-            
-            setupNavigation();
-        }
+    document.getElementById('loginForms').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+
+    // ✅ Initialize map AFTER dashboard is visible
+    setTimeout(() => {
+        if (!map) initMap();
+    }, 100);
+
+    document.getElementById('userType').textContent =
+        currentUserData.type === 'user'
+        ? `👤 Welcome, ${currentUserData.name}!`
+        : `🚗 ${currentUserData.name} Dashboard`;
+
+    document.getElementById('profileName').textContent = currentUserData.name;
+    document.getElementById('profileId').textContent = currentUserData.id;
+    document.getElementById('profileType').textContent =
+        currentUserData.type === 'user' ? 'Passenger' : 'Driver';
+
+    setupNavigation();
+}
 
         function setupNavigation() {
             const nav = document.getElementById('userNav');
@@ -471,32 +474,34 @@
 
     // 🔥 listener (driver only)
     if (!listenerInitialized) {
-    listenerInitialized = true;
+            listenerInitialized = true;
 
-    db.collection("rides").onSnapshot((snapshot) => {
-        const list = document.getElementById("requestsList");
-        list.innerHTML = "";
+            db.collection("rides").onSnapshot((snapshot) => {
+                const list = document.getElementById("requestsList");
+                list.innerHTML = "";
 
-        snapshot.forEach(doc => {
-            const ride = doc.data();
+                snapshot.forEach(doc => {
+                    const ride = doc.data();
+                    if (ride.status !== "pending") return;
 
-            if (ride.status !== "pending") return;
+                    const div = document.createElement("div");
 
-            const div = document.createElement("div");
+                    div.innerHTML = `
+                        <b>Passenger:</b> ${ride.passenger}<br>
+                        <b>From:</b> ${ride.pickup}<br>
+                        <b>To:</b> ${ride.dropoff}<br>
+                        <b>Fare:</b> ${ride.fare}<br>
+                        <button onclick="acceptRide('${doc.id}')">✅ Accept</button>
+                    `;
 
-            div.innerHTML = `
-                <b>Passenger:</b> ${ride.passenger}<br>
-                <b>From:</b> ${ride.pickup}<br>
-                <b>To:</b> ${ride.dropoff}<br>
-                <b>Fare:</b> ${ride.fare}<br>
-                <button onclick="acceptRide('${doc.id}')">✅ Accept</button>
-            `;
+                    list.appendChild(div);
+                });
+            });
+        } // ✅ closes if
 
-            list.appendChild(div);
-        });
-    });
-}
-} 
+    } // ✅ closes else-if
+
+} // ✅ ❗ THIS ONE YOU ARE MISSING (closes setupNavigation)
 
 
 function acceptRide(id) {
