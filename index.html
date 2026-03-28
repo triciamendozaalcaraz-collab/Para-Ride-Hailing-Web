@@ -506,7 +506,9 @@
                         <b>From:</b> ${ride.pickup}<br>
                         <b>To:</b> ${ride.dropoff}<br>
                         <b>Fare:</b> ${ride.fare}<br>
+
                         <button onclick="acceptRide('${doc.id}')">✅ Accept</button>
+                        <button onclick="completeRide('${doc.id}')">🏁 End Ride</button>
                     `;
 
                     list.appendChild(div);
@@ -525,7 +527,14 @@ function acceptRide(id) {
 
     alert("✅ You accepted the ride!");
 }
-        
+
+function completeRide(id) {
+    db.collection("rides").doc(id).update({
+        status: "completed"
+    });
+
+    alert("✅ Ride completed!");
+}      
             
         function logout() {
             document.getElementById('dashboard').style.display = 'none';
@@ -649,16 +658,31 @@ function acceptRide(id) {
     document.getElementById('rideTracker').style.display = 'block';
 }
 
-        function showRoute() {
-            if (routeLine) map.removeLayer(routeLine);
-            const activeLocation = document.querySelector('.location-btn.active');
-            if (activeLocation) {
-                const start = [centerLat, centerLng];
-                const end = [parseFloat(activeLocation.dataset.lat), parseFloat(activeLocation.dataset.lng)];
-                routeLine = L.polyline([start, end], {color: '#ff6b6b', weight: 5}).addTo(map);
-                map.fitBounds(routeLine.getBounds());
-            }
-        }
+       function showRoute() {
+    if (routeLine) {
+        map.removeLayer(routeLine);
+        routeLine = null;
+    }
+
+    const activeLocation = document.querySelector('.location-btn.active');
+    console.log(activeLocation);
+
+    // 🔥 IMPORTANT CHECK
+    if (!activeLocation) return;
+
+    const start = [centerLat, centerLng];
+    const end = [
+        parseFloat(activeLocation.dataset.lat),
+        parseFloat(activeLocation.dataset.lng)
+    ];
+
+    routeLine = L.polyline([start, end], {
+        color: '#ff6b6b',
+        weight: 5
+    }).addTo(map);
+
+    map.fitBounds(routeLine.getBounds());
+}
 
         function simulateRideProgress() {
             let stage = 0;
