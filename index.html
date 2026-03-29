@@ -499,10 +499,36 @@
 
             const ride = doc.data();
 
-            if (ride.status === "accepted" && !notified) {
-                notified = true;
+            const tracker = document.getElementById('rideTracker');
+            const dots = document.querySelectorAll('.tracker-dot');
+            const lines = document.querySelectorAll('.tracker-line');
+
+            tracker.style.display = 'block';
+
+            // RESET
+            dots.forEach(dot => dot.classList.remove('active'));
+            lines.forEach(line => line.classList.remove('active'));
+
+            if (ride.status === "accepted") {
+                dots[0].classList.add('active');
                 alert("🚗 Driver is on the way!");
-                document.getElementById('rideTracker').style.display = 'block';
+            }
+
+            if (ride.status === "arrived") {
+                dots[0].classList.add('active');
+                dots[1].classList.add('active');
+                lines[0].classList.add('active');
+                alert("📍 Driver has arrived!");
+            }
+
+            if (ride.status === "completed") {
+                dots[0].classList.add('active');
+                dots[1].classList.add('active');
+                dots[2].classList.add('active');
+                lines.forEach(line => line.classList.add('active'));
+
+                alert("🎉 Ride completed!");
+                tracker.style.display = 'none';
             }
         });
     }
@@ -563,22 +589,27 @@
 
         snapshot.forEach(doc => {
             const ride = doc.data();
-            if (ride.status !== "pending") return;
+            if (ride.status !== "completed") return;
 
             const div = document.createElement("div");
 
             div.innerHTML = `
-                <div class="request-card">
-                    <div class="request-info">
-                        <p><strong>👤 ${ride.passenger}</strong></p>
-                        <p>📍 ${ride.pickup} → ${ride.dropoff}</p>
-                        <p class="fare">💰 ${ride.fare}</p>
-                    </div>
+                <div class="request-actions">
+                    ${ride.status === "pending" ? 
+                        `<button class="accept-btn" onclick="acceptRide('${doc.id}')">✅ Accept</button>` 
+                        : ''
+                    }
 
-                    <div class="request-actions">
-                        <button class="accept-btn" onclick="acceptRide('${doc.id}')">✅ Accept</button>
-                        <button class="complete-btn" onclick="completeRide('${doc.id}')">🏁 End</button>
-                    </div>
+                    ${ride.status === "accepted" ? 
+                        `<button class="complete-btn" onclick="arrivedRide('${doc.id}')">📍 Arrived</button>` 
+                        : ''
+                    }
+
+                    ${ride.status === "arrived" ? 
+                    `<button class="complete-btn" onclick="completeRide('${doc.id}')">🏁 End</button>` 
+                    : ''
+                    }
+                </div>
                 </div>
             `;
 
@@ -598,9 +629,18 @@ function acceptRide(id) {
     alert("✅ You accepted the ride!");
 }
 
+function arrivedRide(id) {
+    db.collection("rides").doc(id).update({
+        status: "arrived"
+    });
+    alert("📍 You have arrived at pickup point!");
+}
+
 function completeRide(id) {
-    db.collection("rides").doc(id).delete();
-    alert("✅ Ride completed and removed!");
+    db.collection("rides").doc(id).update({
+        status: "completed"
+    });
+    alert("✅ Ride completed!");
 }      
             
         function logout() {
@@ -721,6 +761,7 @@ function completeRide(id) {
     }
 
     const rideId = "RIDE_" + Date.now();
+    currentUserData.currentRideId = rideId;
     const fare = document.getElementById('price').textContent;
 
 db.collection("rides").doc(rideId).set({
