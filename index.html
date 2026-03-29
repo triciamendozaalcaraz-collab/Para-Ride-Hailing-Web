@@ -511,22 +511,14 @@
 
             if (ride.status === "accepted") {
                 dots[0].classList.add('active');
-                
-                if (!notified) {
-                    notified = true;
-                    alert("🚗 Driver is on the way!");
-                }
+                alert("🚗 Driver is on the way!");
             }
 
             if (ride.status === "arrived") {
                 dots[0].classList.add('active');
                 dots[1].classList.add('active');
                 lines[0].classList.add('active');
-
-                if (!notified) {
-                    notified = true;
-                    alert("📍 Driver has arrived!");
-                }
+                alert("📍 Driver has arrived!");
             }
 
             if (ride.status === "completed") {
@@ -539,7 +531,6 @@
                 tracker.style.display = 'none';
             }
         });
-    }
 }
 
         function setupNavigation() {
@@ -800,6 +791,7 @@ currentUserData.currentRideId = rideId;
 alert("🔍 Finding driver...");
 
     document.getElementById('rideTracker').style.display = 'block';
+    listenToRideUpdates(rideId);
 }
 
        function showRoute() {
@@ -873,6 +865,47 @@ alert("🔍 Finding driver...");
                 }
             }
         });
+
+function listenToRideUpdates(rideId) {
+    db.collection("rides").doc(rideId)
+    .onSnapshot((doc) => {
+        if (!doc.exists) return;
+
+        const ride = doc.data();
+
+        const tracker = document.getElementById('rideTracker');
+        const dots = document.querySelectorAll('.tracker-dot');
+        const lines = document.querySelectorAll('.tracker-line');
+
+        tracker.style.display = 'block';
+
+        // RESET
+        dots.forEach(dot => dot.classList.remove('active'));
+        lines.forEach(line => line.classList.remove('active'));
+
+        if (ride.status === "accepted") {
+            dots[0].classList.add('active');
+            alert("🚗 Driver is on the way!");
+        }
+
+        if (ride.status === "arrived") {
+            dots[0].classList.add('active');
+            dots[1].classList.add('active');
+            lines[0].classList.add('active');
+            alert("📍 Driver has arrived!");
+        }
+
+        if (ride.status === "completed") {
+            dots[0].classList.add('active');
+            dots[1].classList.add('active');
+            dots[2].classList.add('active');
+            lines.forEach(line => line.classList.add('active'));
+
+            alert("🎉 Ride completed!");
+            tracker.style.display = 'none';
+        }
+    });
+}
     </script>
 <!-- Firebase Scripts -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>	
