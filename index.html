@@ -493,17 +493,17 @@
 
     if (currentUserData.type === 'user') {
         db.collection("rides")
-        .where("passenger", "==", currentUserData.name)
-        .onSnapshot((snapshot) => {
-            snapshot.forEach(doc => {
-                const ride = doc.data();
+        .doc(currentUserData.currentRideId)
+        .onSnapshot((doc) => {
+            if (!doc.exists) return;
 
-                if (ride.status === "accepted" && !notified) {
-                    notified = true;
-                    alert("🚗 Driver is on the way!");
-                    document.getElementById('rideTracker').style.display = 'block';
-                }
-            });
+            const ride = doc.data();
+
+            if (ride.status === "accepted" && !notified) {
+                notified = true;
+                alert("🚗 Driver is on the way!");
+                document.getElementById('rideTracker').style.display = 'block';
+            }
         });
     }
 }
@@ -557,7 +557,7 @@
         if (!listenerInitialized) {
     listenerInitialized = true;
 
-    db.collection("rides").onSnapshot((snapshot) => {
+    db.collection("rides").orderBy("time", "desc").limit(20).onSnapshot((snapshot) => {
         const list = document.getElementById("requestsList");
         list.innerHTML = "";
 
@@ -599,10 +599,8 @@ function acceptRide(id) {
 }
 
 function completeRide(id) {
-    db.collection("rides").doc(id).update({
-        status: "completed"
-    });
-    alert("✅ Ride completed!");
+    db.collection("rides").doc(id).delete();
+    alert("✅ Ride completed and removed!");
 }      
             
         function logout() {
@@ -710,6 +708,7 @@ function completeRide(id) {
         }
 
         function bookRide() {
+            notified = false;
     const activeLocation = document.querySelector('.location-btn.active');
 
     let dest = document.getElementById('destination').textContent;
@@ -721,22 +720,27 @@ function completeRide(id) {
         dropLng = parseFloat(activeLocation.dataset.lng);
     }
 
+    const rideId = "RIDE_" + Date.now();
     const fare = document.getElementById('price').textContent;
 
-    db.collection("rides").add({
-        passenger: currentUserData.name,
-        pickup: "Good Samaritan Colleges",
-        dropoff: dest,
-        dropLat: dropLat,
-        dropLng: dropLng,
-        fare: fare,
-        status: "pending",
-        driver: null,
-        time: new Date()
-    });
+db.collection("rides").doc(rideId).set({
+    rideId: rideId,
+    passenger: currentUserData.name,
+    pickup: "Good Samaritan Colleges",
+    dropoff: dest,
+    dropLat: dropLat,
+    dropLng: dropLng,
+    fare: fare,
+    status: "pending",
+    driver: null,
+    time: firebase.firestore.FieldValue.serverTimestamp()
+});
 
-    // ✅ ADD THIS LINE
-    alert("🔍 Finding driver...");
+// 🔥 SAVE CURRENT RIDE
+currentUserData.currentRideId = rideId;
+
+// 🔍 UX
+alert("🔍 Finding driver...");
 
     document.getElementById('rideTracker').style.display = 'block';
 }
@@ -827,15 +831,17 @@ function completeRide(id) {
     messagingSenderId: "181458365434",
     appId: "1:181458365434:web:5ec74b2998ca02e77a5243"
   };
-
+	
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // 🔥 TEST CODE (para malaman kung connected)
-  db.collection("test").add({
-    message: "connected!"
-  });
+  if (!localStorage.getItem("tested")) {
+    db.collection("test").add({
+        message: "connected!"
+    });
+    localStorage.setItem("tested", "yes");
+}
 </script>
 </body>
 </html>
