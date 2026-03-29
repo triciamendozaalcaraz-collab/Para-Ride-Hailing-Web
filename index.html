@@ -108,7 +108,71 @@
             .ride-info { flex-direction: column; gap: 15px; text-align: center; }
             .location-selector, .passenger-type { justify-content: center; }
             .location-btn, .passenger-btn { font-size: 0.8rem; padding: 8px 12px; }
-        }
+}
+
+/* ✅ DRIVER REQUEST CARD DESIGN */
+
+.request-card {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.request-info p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+}
+
+.request-info .fare {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.request-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.accept-btn {
+    padding: 12px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.complete-btn {
+    padding: 12px 20px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.accept-btn:hover {
+    background: #218838;
+}
+
+.complete-btn:hover {
+    background: #5a6268;
+}
+
+.request-card:hover {
+    transform: translateY(-3px);
+    transition: 0.2s;
+}
     </style>
 </head>
 <body>
@@ -173,22 +237,24 @@
                                 <li>♿ PWD: <strong>₱15 (1 PWD) / ₱10 each (2+ PWD)</strong></li>
                             </ul>
                         </div>
-                        
+                       
                         <div id="map"></div>
                         <div class="location-selector">
-                            <button class="location-btn active" data-lat="15.4833" data-lng="120.9500" data-name="Good Samaritan Colleges">Good Samaritan</button>
-                            <button class="location-btn" data-lat="15.4800" data-lng="120.9450" data-name="Sangitan">Sangitan</button>
+                            <button class="location-btn active" data-lat="15.491711" data-lng="120.973841" data-name="Good Samaritan Colleges">Good Samaritan</button>
+                            <button class="location-btn" data-lat="15.48924" data-lng="120.97674" data-name="Sangitan">Sangitan</button>
                             <button class="location-btn" data-lat="15.4850" data-lng="120.9520" data-name="Aduas Centro">Aduas Centro</button>
                             <button class="location-btn" data-lat="15.4870" data-lng="120.9480" data-name="Aduas Norte">Aduas Norte</button>
                             <button class="location-btn" data-lat="15.4820" data-lng="120.9530" data-name="Aduas Sur">Aduas Sur</button>
                             <button class="location-btn" data-lat="15.4780" data-lng="120.9470" data-name="Bitas">Bitas</button>
                             <button class="location-btn" data-lat="15.4750" data-lng="120.9550" data-name="Dimasalang">Dimasalang</button>
                             <button class="location-btn" data-lat="15.4790" data-lng="120.9490" data-name="Matadero">Matadero</button>
-                            <button class="location-btn" data-lat="15.4810" data-lng="120.9510" data-name="NEHS">NEHS</button>
-                            <button class="location-btn" data-lat="15.4840" data-lng="120.9460" data-name="Science HS">Science HS</button>
+                            <button class="location-btn" data-lat="15.48978" data-lng="120.97073" data-name="NEHS">NEHS</button>
+                            <button class="location-btn" data-lat="15.48589" data-lng="120.97413" data-name="Science HS">Science HS</button>
                             <button class="location-btn" data-lat="15.4770" data-lng="120.9540" data-name="PAU">PAU</button>
-                            <button class="location-btn" data-lat="15.4760" data-lng="120.9520" data-name="Wesleyan">Wesleyan</button>
-                            <button class="location-btn" data-lat="15.4830" data-lng="120.9505" data-name="Midway">Midway</button>
+                            <button class="location-btn" data-lat="15.48518" data-lng="120.97566" data-name="Wesleyan">Wesleyan</button>
+                            <button class="location-btn" data-lat="15.49732" data-lng="120.97613" data-name="Midway">Midway</button>
+                            <button class="location-btn" data-lat="15.48628" data-lng="120.97204" data-name="Waltermart">Waltermart</button>
+                            <button class="location-btn" data-lat="15.48813" data-lng="120.96788" data-name="SM Megacenter">SM Megacenter</button>
                         </div>
                         <div class="passenger-type">
                             <button class="passenger-btn active" data-type="single" data-pax="1">👤 Single (1)</button>
@@ -284,7 +350,7 @@
                     <div class="profile-grid">
                         <div class="profile-item">
                             <h3>🏠 Home Base</h3>
-                            <p>Good Samaritan Colleges<br><small>15.4833, 120.9500</small></p>
+                            <p>Good Samaritan Colleges<br><small>15.491711, 120.973841</small></p>
                         </div>
                         <div class="profile-item">
                             <h3>📍 Current Location</h3>
@@ -323,21 +389,23 @@
         let rideStages = ['Driver Found', 'En Route', 'Arrived'];
 
         function initMap() {
-            map = L.map('map').setView([centerLat, centerLng], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            // 2KM RADIUS CIRCLE
-            L.circle([centerLat, centerLng], { 
-                color: '#ff6b6b', fillColor: '#ff6b6b', fillOpacity: 0.1, 
-                radius: radius, weight: 3 
-            }).addTo(map);
-            
-            L.marker([centerLat, centerLng]).addTo(map)
-                .bindPopup('🏫 Good Samaritan Colleges<br><small>Service Center - 2km Radius</small>')
-                .openPopup();
-        }
+    map = L.map('map').setView([centerLat, centerLng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    L.circle([centerLat, centerLng], { 
+        color: '#ff6b6b', fillColor: '#ff6b6b', fillOpacity: 0.1, 
+        radius: radius, weight: 3 
+    }).addTo(map);
+    
+    L.marker([centerLat, centerLng]).addTo(map)
+        .bindPopup('🏫 Good Samaritan Colleges<br><small>Service Center - 2km Radius</small>')
+        .openPopup();
+
+    // ✅ ADD THIS
+    showRoute();
+}
 
         function showLoginForm(type) {
             document.getElementById('landing').style.display = 'none';
@@ -402,10 +470,11 @@
         }
 
         function showDashboard() {
+    notified = false; // ✔ reset kada login
+
     document.getElementById('loginForms').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
 
-    // ✅ Initialize map AFTER dashboard is visible
     setTimeout(() => {
         if (!map) initMap();
     }, 100);
@@ -422,26 +491,22 @@
 
     setupNavigation();
 
-// 🔥 ILAGAY MO ITO DITO
-let notified = false;
+    if (currentUserData.type === 'user') {
+        db.collection("rides")
+        .where("passenger", "==", currentUserData.name)
+        .onSnapshot((snapshot) => {
+            snapshot.forEach(doc => {
+                const ride = doc.data();
 
-if (currentUserData.type === 'user') {
-    db.collection("rides")
-    .where("passenger", "==", currentUserData.name)
-    .onSnapshot((snapshot) => {
-        snapshot.forEach(doc => {
-            const ride = doc.data();
-
-            if (ride.status === "accepted" && !notified) {
-                notified = true;
-
-                alert("🚗 Driver is on the way!");
-                document.getElementById('rideTracker').style.display = 'block';
-            }
+                if (ride.status === "accepted" && !notified) {
+                    notified = true;
+                    alert("🚗 Driver is on the way!");
+                    document.getElementById('rideTracker').style.display = 'block';
+                }
+            });
         });
-    });
+    }
 }
-
 
         function setupNavigation() {
     const nav = document.getElementById('userNav');
@@ -449,8 +514,7 @@ if (currentUserData.type === 'user') {
 
     if (currentUserData.type === 'user') {
 
-    // ✅ IBALIK ANG BUTTON
-    document.getElementById("bookRideBtn").style.display = "block";
+        document.getElementById("bookRideBtn").style.display = "block";
 
         const userNavItems = [
             {text: '🏠 Home', id: 'home'},
@@ -491,34 +555,39 @@ if (currentUserData.type === 'user') {
         });
 
         if (!listenerInitialized) {
-            listenerInitialized = true;
+    listenerInitialized = true;
 
-            db.collection("rides").onSnapshot((snapshot) => {
-                const list = document.getElementById("requestsList");
-                list.innerHTML = "";
+    db.collection("rides").onSnapshot((snapshot) => {
+        const list = document.getElementById("requestsList");
+        list.innerHTML = "";
 
-                snapshot.forEach(doc => {
-                    const ride = doc.data();
-                    if (ride.status !== "pending") return;
+        snapshot.forEach(doc => {
+            const ride = doc.data();
+            if (ride.status !== "pending") return;
 
-                    const div = document.createElement("div");
+            const div = document.createElement("div");
 
-                    div.innerHTML = `
-                        <b>Passenger:</b> ${ride.passenger}<br>
-                        <b>From:</b> ${ride.pickup}<br>
-                        <b>To:</b> ${ride.dropoff}<br>
-                        <b>Fare:</b> ${ride.fare}<br>
+            div.innerHTML = `
+                <div class="request-card">
+                    <div class="request-info">
+                        <p><strong>👤 ${ride.passenger}</strong></p>
+                        <p>📍 ${ride.pickup} → ${ride.dropoff}</p>
+                        <p class="fare">💰 ${ride.fare}</p>
+                    </div>
 
-                        <button onclick="acceptRide('${doc.id}')">✅ Accept</button>
-                        <button onclick="completeRide('${doc.id}')">🏁 End Ride</button>
-                    `;
+                    <div class="request-actions">
+                        <button class="accept-btn" onclick="acceptRide('${doc.id}')">✅ Accept</button>
+                        <button class="complete-btn" onclick="completeRide('${doc.id}')">🏁 End</button>
+                    </div>
+                </div>
+            `;
 
-                    list.appendChild(div);
-                });
-            });
-        }
-    }
-}	
+            list.appendChild(div); // ✅ IMPORTANT!
+        });
+    });
+  }
+ }
+}
 
 
 function acceptRide(id) {
@@ -526,7 +595,6 @@ function acceptRide(id) {
         status: "accepted",
         driver: currentUserData.name
     });
-
     alert("✅ You accepted the ride!");
 }
 
@@ -534,12 +602,12 @@ function completeRide(id) {
     db.collection("rides").doc(id).update({
         status: "completed"
     });
-
     alert("✅ Ride completed!");
 }      
             
         function logout() {
             document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('driverPanel').style.display = 'none';
             document.getElementById('landing').style.display = 'flex';
             currentUserData = {};
             document.getElementById('rideTracker').style.display = 'none';
@@ -642,36 +710,47 @@ function completeRide(id) {
         }
 
         function bookRide() {
-    const dest = document.getElementById('destination').textContent;
-    const activePassenger = document.querySelector('.passenger-btn.active');
+    const activeLocation = document.querySelector('.location-btn.active');
+
+    let dest = document.getElementById('destination').textContent;
+    let dropLat = null;
+    let dropLng = null;
+
+    if (activeLocation) {
+        dropLat = parseFloat(activeLocation.dataset.lat);
+        dropLng = parseFloat(activeLocation.dataset.lng);
+    }
+
     const fare = document.getElementById('price').textContent;
 
-    // 🔥 SAVE SA FIRESTORE
     db.collection("rides").add({
-    passenger: currentUserData.name,
-    pickup: "Good Samaritan Colleges",
-    dropoff: dest,
-    fare: fare,
-    status: "pending",
-    driver: null, // ✅ ADD THIS
-    time: new Date()
-});
-    alert("✅ Ride booked!");
+        passenger: currentUserData.name,
+        pickup: "Good Samaritan Colleges",
+        dropoff: dest,
+        dropLat: dropLat,
+        dropLng: dropLng,
+        fare: fare,
+        status: "pending",
+        driver: null,
+        time: new Date()
+    });
+
+    // ✅ ADD THIS LINE
+    alert("🔍 Finding driver...");
 
     document.getElementById('rideTracker').style.display = 'block';
 }
 
        function showRoute() {
-    if (routeLine) {
-        map.removeLayer(routeLine);
-        routeLine = null;
-    }
+    if (routeLine) map.removeLayer(routeLine);
 
     const activeLocation = document.querySelector('.location-btn.active');
-    console.log(activeLocation);
 
-    // 🔥 IMPORTANT CHECK
-    if (!activeLocation) return;
+    // 🔥 FIX: check kung null
+    if (!activeLocation) {
+        console.log("Walang selected location!");
+        return;
+    }
 
     const start = [centerLat, centerLng];
     const end = [
@@ -755,8 +834,7 @@ function completeRide(id) {
 
   // 🔥 TEST CODE (para malaman kung connected)
   db.collection("test").add({
-    message: "connected!",
-    time: new Date()
+    message: "connected!"
   });
 </script>
 </body>
