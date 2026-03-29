@@ -491,19 +491,19 @@
 
     setupNavigation();
 
-    if (currentUserData.type === 'user') {
-        db.collection("rides")
-        .doc(currentUserData.currentRideId)
-        .onSnapshot((doc) => {
-            if (!doc.exists) return;
+    if (currentUserData.type === 'user' && currentUserData.currentRideId) {
+    db.collection("rides")
+    .doc(currentUserData.currentRideId)
+    .onSnapshot((doc) => {
+        if (!doc.exists) return;
 
-            const ride = doc.data();
+        const ride = doc.data();
 
-            const tracker = document.getElementById('rideTracker');
-            const dots = document.querySelectorAll('.tracker-dot');
-            const lines = document.querySelectorAll('.tracker-line');
+        const tracker = document.getElementById('rideTracker');
+        const dots = document.querySelectorAll('.tracker-dot');
+        const lines = document.querySelectorAll('.tracker-line');
 
-            tracker.style.display = 'block';
+        tracker.style.display = 'block';
 
             // RESET
             dots.forEach(dot => dot.classList.remove('active'));
@@ -511,14 +511,22 @@
 
             if (ride.status === "accepted") {
                 dots[0].classList.add('active');
-                alert("🚗 Driver is on the way!");
+                
+                if (!notified) {
+                    notified = true;
+                    alert("🚗 Driver is on the way!");
+                }
             }
 
             if (ride.status === "arrived") {
                 dots[0].classList.add('active');
                 dots[1].classList.add('active');
                 lines[0].classList.add('active');
-                alert("📍 Driver has arrived!");
+
+                if (!notified) {
+                    notified = true;
+                    alert("📍 Driver has arrived!");
+                }
             }
 
             if (ride.status === "completed") {
@@ -589,29 +597,37 @@
 
         snapshot.forEach(doc => {
             const ride = doc.data();
-            if (ride.status !== "completed") return;
+            if (ride.status === "completed") return;
 
             const div = document.createElement("div");
+     
+            div.className = "request-card";
 
-            div.innerHTML = `
-                <div class="request-actions">
-                    ${ride.status === "pending" ? 
-                        `<button class="accept-btn" onclick="acceptRide('${doc.id}')">✅ Accept</button>` 
-                        : ''
-                    }
+div.innerHTML = `
+    <div class="request-info">
+        <p><strong>Passenger:</strong> ${ride.passenger}</p>
+        <p><strong>From:</strong> ${ride.pickup}</p>
+        <p><strong>To:</strong> ${ride.dropoff}</p>
+        <p class="fare">💰 ${ride.fare}</p>
+    </div>
 
-                    ${ride.status === "accepted" ? 
-                        `<button class="complete-btn" onclick="arrivedRide('${doc.id}')">📍 Arrived</button>` 
-                        : ''
-                    }
+    <div class="request-actions">
+        ${ride.status === "pending" ? 
+            `<button class="accept-btn" onclick="acceptRide('${doc.id}')">✅ Accept</button>` 
+            : ''
+        }
 
-                    ${ride.status === "arrived" ? 
-                    `<button class="complete-btn" onclick="completeRide('${doc.id}')">🏁 End</button>` 
-                    : ''
-                    }
-                </div>
-                </div>
-            `;
+        ${ride.status === "accepted" ? 
+            `<button class="complete-btn" onclick="arrivedRide('${doc.id}')">📍 Arrived</button>` 
+            : ''
+        }
+
+        ${ride.status === "arrived" ? 
+            `<button class="complete-btn" onclick="completeRide('${doc.id}')">🏁 End</button>` 
+            : ''
+        }
+    </div>
+`;
 
             list.appendChild(div); // ✅ IMPORTANT!
         });
