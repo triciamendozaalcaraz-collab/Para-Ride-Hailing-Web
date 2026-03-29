@@ -541,7 +541,7 @@ function setupNavigation() {
         if (!listenerInitialized) {
     listenerInitialized = true;
 
-    db.collection("rides").where("status", "!=", "completed").orderBy("status").orderBy("time", "desc").onSnapshot((snapshot) => {
+    db.collection("rides").orderBy("time", "desc").onSnapshot((snapshot) => {
         const list = document.getElementById("requestsList");
         list.innerHTML = "";
 
@@ -552,7 +552,7 @@ function setupNavigation() {
             const div = document.createElement("div");
      
             div.className = "request-card";
-            div.setAttributed("data-id", doc.id);
+            div.setAttribute("data-id", doc.id);
 
 div.innerHTML = `
     <div class="request-info">
@@ -629,6 +629,14 @@ function completeRide(id) {
         alert("✅ Ride completed!");
     });
 }      
+
+function arrivedRide(id) {
+    db.collection("rides").doc(id).update({
+        status: "arrived"
+    }).then(() => {
+        alert("📍 Driver arrived!");
+    });
+}
             
         function logout() {
             document.getElementById('dashboard').style.display = 'none';
