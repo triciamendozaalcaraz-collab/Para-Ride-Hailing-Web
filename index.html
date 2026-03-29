@@ -490,50 +490,9 @@
         currentUserData.type === 'user' ? 'Passenger' : 'Driver';
 
     setupNavigation();
-
-    if (currentUserData.type === 'user' && currentUserData.currentRideId) {
-    db.collection("rides")
-    .doc(currentUserData.currentRideId)
-    .onSnapshot((doc) => {
-        if (!doc.exists) return;
-
-        const ride = doc.data();
-
-        const tracker = document.getElementById('rideTracker');
-        const dots = document.querySelectorAll('.tracker-dot');
-        const lines = document.querySelectorAll('.tracker-line');
-
-        tracker.style.display = 'block';
-
-            // RESET
-            dots.forEach(dot => dot.classList.remove('active'));
-            lines.forEach(line => line.classList.remove('active'));
-
-            if (ride.status === "accepted") {
-                dots[0].classList.add('active');
-                alert("🚗 Driver is on the way!");
-            }
-
-            if (ride.status === "arrived") {
-                dots[0].classList.add('active');
-                dots[1].classList.add('active');
-                lines[0].classList.add('active');
-                alert("📍 Driver has arrived!");
-            }
-
-            if (ride.status === "completed") {
-                dots[0].classList.add('active');
-                dots[1].classList.add('active');
-                dots[2].classList.add('active');
-                lines.forEach(line => line.classList.add('active'));
-
-                alert("🎉 Ride completed!");
-                tracker.style.display = 'none';
-            }
-        });
 }
 
-        function setupNavigation() {
+function setupNavigation() {
     const nav = document.getElementById('userNav');
     nav.innerHTML = '';
 
@@ -755,6 +714,7 @@ function completeRide(id) {
         }
 
         function bookRide() {
+            lastStatus = null; 
             notified = false;
     const activeLocation = document.querySelector('.location-btn.active');
 
@@ -866,6 +826,8 @@ alert("🔍 Finding driver...");
             }
         });
 
+let lastStatus = null; // 🔥 IMPORTANT
+
 function listenToRideUpdates(rideId) {
     db.collection("rides").doc(rideId)
     .onSnapshot((doc) => {
@@ -879,30 +841,36 @@ function listenToRideUpdates(rideId) {
 
         tracker.style.display = 'block';
 
-        // RESET
+        // RESET UI
         dots.forEach(dot => dot.classList.remove('active'));
         lines.forEach(line => line.classList.remove('active'));
 
-        if (ride.status === "accepted") {
-            dots[0].classList.add('active');
-            alert("🚗 Driver is on the way!");
-        }
+        // 🚨 ONLY trigger kapag nagbago ang status
+        if (ride.status !== lastStatus) {
 
-        if (ride.status === "arrived") {
-            dots[0].classList.add('active');
-            dots[1].classList.add('active');
-            lines[0].classList.add('active');
-            alert("📍 Driver has arrived!");
-        }
+            if (ride.status === "accepted") {
+                dots[0].classList.add('active');
+                alert("🚗 Driver is on the way!");
+            }
 
-        if (ride.status === "completed") {
-            dots[0].classList.add('active');
-            dots[1].classList.add('active');
-            dots[2].classList.add('active');
-            lines.forEach(line => line.classList.add('active'));
+            if (ride.status === "arrived") {
+                dots[0].classList.add('active');
+                dots[1].classList.add('active');
+                lines[0].classList.add('active');
+                alert("📍 Driver has arrived!");
+            }
 
-            alert("🎉 Ride completed!");
-            tracker.style.display = 'none';
+            if (ride.status === "completed") {
+                dots[0].classList.add('active');
+                dots[1].classList.add('active');
+                dots[2].classList.add('active');
+                lines.forEach(line => line.classList.add('active'));
+
+                alert("🎉 Ride completed!");
+                tracker.style.display = 'none';
+            }
+
+            lastStatus = ride.status; // 🔥 SAVE LAST STATUS
         }
     });
 }
