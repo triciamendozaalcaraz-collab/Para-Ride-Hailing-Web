@@ -319,7 +319,7 @@
         let map, userMarker, currentUserType = '', currentUserData = {}, routeLine;
         let listenerInitialized = false;
         let notified = false;
-        const centerLat = 15.4833, centerLng = 120.9500, radius = 2000; // 2km radius LOCKED
+        const centerLat = 15.491711, centerLng = 120.973841, radius = 2000; // 2km radius LOCKED
         let rideStages = ['Driver Found', 'En Route', 'Arrived'];
 
         function initMap() {
@@ -608,6 +608,7 @@ function completeRide(id) {
                     e.preventDefault();
                     document.querySelectorAll('.passenger-btn').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
+                    showRoute();
                     updatePrice();
                 });
             });
@@ -681,7 +682,7 @@ function completeRide(id) {
         weight: 5
     }).addTo(map);
 
-    map.fitBounds(routeLine.getBounds());
+    map.setView([centerLat, centerLng, 15;
 }
 
         function simulateRideProgress() {
