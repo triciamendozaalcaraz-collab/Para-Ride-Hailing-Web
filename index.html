@@ -541,7 +541,7 @@ function setupNavigation() {
         if (!listenerInitialized) {
     listenerInitialized = true;
 
-    db.collection("rides").orderBy("time", "desc").limit(20).onSnapshot((snapshot) => {
+    db.collection("rides").where("status", "!=", "completed").orderBy("status").orderBy("time", "desc").onSnapshot((snapshot) => {
         const list = document.getElementById("requestsList");
         list.innerHTML = "";
 
@@ -552,6 +552,7 @@ function setupNavigation() {
             const div = document.createElement("div");
      
             div.className = "request-card";
+            div.setAttributed("data-id", doc.id);
 
 div.innerHTML = `
     <div class="request-info">
@@ -588,25 +589,45 @@ div.innerHTML = `
 
 
 function acceptRide(id) {
-    db.collection("rides").doc(id).update({
-        status: "accepted",
-        driver: currentUserData.name
-    });
-    alert("✅ You accepted the ride!");
-}
+    const ref = db.collection("rides").doc(id);
 
-function arrivedRide(id) {
-    db.collection("rides").doc(id).update({
-        status: "arrived"
+    db.runTransaction(async (t) => {
+        const doc = await t.get(ref);
+
+        if (!doc.exists) return;
+
+        const ride = doc.data();
+
+        // 🔥 CHECK muna
+        if (ride.status !== "pending") {
+            alert("❌ Ride already taken!");
+            return;
+        }
+
+        // ✅ SAFE update
+        t.update(ref, {
+            status: "accepted",
+            driver: currentUserData.name
+        });
+    }).then(() => {
+        alert("✅ You accepted the ride!");
+    }).catch(err => {
+        console.error(err);
+        alert("❌ Failed to accept ride");
     });
-    alert("📍 You have arrived at pickup point!");
 }
 
 function completeRide(id) {
     db.collection("rides").doc(id).update({
         status: "completed"
+    }).then(() => {
+
+        // 🔥 REMOVE agad sa UI
+        const card = document.querySelector(`[data-id='${id}']`);
+        if (card) card.remove();
+
+        alert("✅ Ride completed!");
     });
-    alert("✅ Ride completed!");
 }      
             
         function logout() {
